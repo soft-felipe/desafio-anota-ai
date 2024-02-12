@@ -3,7 +3,6 @@ package com.felipemoreira.desafioanotaai.controllers;
 import com.felipemoreira.desafioanotaai.domain.category.Category;
 import com.felipemoreira.desafioanotaai.domain.category.CategoryDTO;
 import com.felipemoreira.desafioanotaai.service.CategoryService;
-import jakarta.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,13 +31,13 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Category> update(@PathParam("id") String id, @RequestBody CategoryDTO categoryData) {
+    public ResponseEntity<Category> update(@PathVariable("id") String id, @RequestBody CategoryDTO categoryData) {
         Category updatedCategory = service.update(id, categoryData);
         return ResponseEntity.ok().body(updatedCategory);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Category> delete(@PathParam("id") String id) {
+    public ResponseEntity<Category> delete(@PathVariable("id") String id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

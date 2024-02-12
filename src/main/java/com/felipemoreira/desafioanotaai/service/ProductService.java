@@ -29,7 +29,7 @@ public class ProductService {
 
     public Product insert(ProductDTO productData) {
         Category categoryThisProduct = categoryService.getById(productData.categoryId())
-                .orElseThrow(CategoryNotFoundException::new);
+                .orElseThrow(() -> new CategoryNotFoundException("Categoria não encontrada no banco!"));
 
         Product newProduct = new Product(productData);
         newProduct.setCategory(categoryThisProduct);
@@ -42,9 +42,8 @@ public class ProductService {
         Product productToBeUpdated = this.repository.findById(id)
                 .orElseThrow(ProductNotFoundException::new);
 
-        this.categoryService.getById(productData.categoryId())
+        if (productData.categoryId() != null) this.categoryService.getById(productData.categoryId())
                 .ifPresent(productToBeUpdated::setCategory);
-
         if (!productData.title().isEmpty()) productToBeUpdated.setTitle(productData.title());
         if (!productData.description().isEmpty()) productToBeUpdated.setDescription(productData.description());
         if (productData.price() != null) productToBeUpdated.setPrice(productData.price());
