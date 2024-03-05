@@ -1,6 +1,5 @@
 package com.felipemoreira.desafioanotaai.service;
 
-import com.felipemoreira.desafioanotaai.domain.category.Category;
 import com.felipemoreira.desafioanotaai.domain.category.exceptions.CategoryNotFoundException;
 import com.felipemoreira.desafioanotaai.domain.product.Product;
 import com.felipemoreira.desafioanotaai.domain.product.ProductDTO;
@@ -32,15 +31,12 @@ public class ProductService {
     }
 
     public Product insert(ProductDTO productData) {
-        Category categoryThisProduct = categoryService.getById(productData.categoryId())
+        categoryService.getById(productData.categoryId())
                 .orElseThrow(() -> new CategoryNotFoundException("Categoria não encontrada no banco!"));
 
         Product newProduct = new Product(productData);
-        newProduct.setCategory(categoryThisProduct);
-
         this.repository.save(newProduct);
-
-        this.snsService.publish(new MessageDTO(newProduct.getOwnerId()));
+        this.snsService.publish(new MessageDTO(newProduct.toString()));
 
         return newProduct;
     }
@@ -49,15 +45,17 @@ public class ProductService {
         Product productToBeUpdated = this.repository.findById(id)
                 .orElseThrow(ProductNotFoundException::new);
 
-        if (productData.categoryId() != null) this.categoryService.getById(productData.categoryId())
-                .ifPresent(productToBeUpdated::setCategory);
+        if (productData.categoryId() != null) {
+            this.categoryService.getById(productData.categoryId())
+                    .orElseThrow(CategoryNotFoundException::new);
+            productToBeUpdated.setCategoryId(productData.categoryId());
+        }
         if (!productData.title().isEmpty()) productToBeUpdated.setTitle(productData.title());
         if (!productData.description().isEmpty()) productToBeUpdated.setDescription(productData.description());
         if (productData.price() != null) productToBeUpdated.setPrice(productData.price());
 
         this.repository.save(productToBeUpdated);
-
-        this.snsService.publish(new MessageDTO(productToBeUpdated.getOwnerId()));
+        this.snsService.publish(new MessageDTO(productToBeUpdated.toString()));
 
         return productToBeUpdated;
     }
